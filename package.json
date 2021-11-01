@@ -1,0 +1,25 @@
+{
+    "name": "algorando",
+    "version": "1.0.0",
+    "description": "On-chain randomness oracle using keccak256",
+    "main": "index.js",
+    "scripts": {
+        "test": "npm run algob test",
+        "prepare": "pipenv sync",
+        "algob": "pipenv run algob"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://gitlab.com/zcircuit/algorando.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://gitlab.com/zcircuit/algorando/issues"
+    },
+    "homepage": "https://gitlab.com/zcircuit/algorando#readme",
+    "dependencies": {
+        "@algo-builder/algob": "^2.1.0",
+        "chai": "^4.3.4"
+    }
+}
