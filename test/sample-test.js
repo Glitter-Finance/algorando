@@ -1,74 +1,44 @@
 const { getProgram } = require('@algo-builder/algob');
 const { Runtime, AccountStore } = require('@algo-builder/runtime');
 const { types } = require('@algo-builder/web');
-const { assert } = require('chai');
+const { assert, expect } = require('chai');
 
 const minBalance = BigInt(1e6);
 const masterBalance = BigInt(10e6);
-const amount = BigInt(1e6);
+const FEE = 1e3;
 
-describe('Sample Test', function () {
+describe('Algorando', function () {
+    const algorandoProgram = getProgram('algorando.py')
+    const clearProgram = getProgram('noop-clear.teal');
+
     let master;
-    let fundReceiver;
-
     let runtime;
-    let lsig;
-    const feeCheckProgram = getProgram('fee-check.teal');
+    let appId;
 
     this.beforeEach(async function () {
         master = new AccountStore(masterBalance);
-        fundReceiver = new AccountStore(minBalance);
-        runtime = new Runtime([master, fundReceiver]);
+        runtime = new Runtime([master]);
 
-        lsig = runtime.getLogicSig(feeCheckProgram);
-        lsig.sign(master.account.sk);
+        appId = runtime.addApp({
+            sender: master.account,
+            globalBytes: 1,
+            globalInts: 1,
+        }, {}, algorandoProgram, clearProgram);
     });
 
-    function syncAccounts() {
-        master = runtime.getAccount(master.address);
-        fundReceiver = runtime.getAccount(fundReceiver.address);
-    }
-
-    it('Should not fail because txn fees is equal to or greater than 10000 microAlgos', () => {
-        const validTxFee = 10000;
-        assert.equal(fundReceiver.balance(), minBalance);
-        assert.equal(master.balance(), masterBalance);
+    it('Should be deployable', () => {
+        const before = Array.from(runtime.getGlobalState(appId, 'Value'));
 
         runtime.executeTx({
-            type: types.TransactionType.TransferAlgo,
-            sign: types.SignType.LogicSignature,
-            lsig: lsig,
+            type: types.TransactionType.CallApp,
+            sign: types.SignType.SecretKey,
             fromAccountAddr: master.address,
-            toAccountAddr: fundReceiver.address,
-            amountMicroAlgos: amount,
-            payFlags: { totalFee: validTxFee }
+            appID: appId,
+            payFlags: {
+                totalFee: FEE,
+            },
         });
-        syncAccounts();
-        assert.equal(fundReceiver.balance(), minBalance + amount);
-        assert.equal(master.balance(), masterBalance - amount - BigInt(validTxFee));
-    });
-
-    it('Should fail because txn fees is less than 10000 microAlgos', () => {
-        const invalidTxFee = 1000;
-        const initialFundRecBalance = fundReceiver.balance();
-        const initialMasterBalance = master.balance();
-
-        try {
-            runtime.executeTx({
-                type: types.TransactionType.TransferAlgo,
-                sign: types.SignType.LogicSignature,
-                lsig: lsig,
-                fromAccountAddr: master.address,
-                toAccountAddr: fundReceiver.address,
-                amountMicroAlgos: amount,
-                payFlags: { totalFee: invalidTxFee }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-        syncAccounts();
-        // verify balance is unchanged
-        assert.equal(fundReceiver.balance(), initialFundRecBalance);
-        assert.equal(master.balance(), initialMasterBalance);
+        const after = Array.from(runtime.getGlobalState(appId, 'Value'));
+        expect(before).to.not.deep.equal(after);
     });
 });
