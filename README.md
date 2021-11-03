@@ -26,6 +26,7 @@ ImportScratchValue(<n>, 0)
  - **Risk**: Users could brute-force a sender address that could produce a favorable value, compromising the 'randomness'
    - > Mitigation: The last block time is unpredictable and changes every block, about ~4.5s. The last block time is incorporated when calculating the random value (See, Global.latest_timestamp()). This puts a deadline on any would be abusers
    - > Mitigation: Developers **should** incorporate a call to Algorando into their application's transactions even when a random value is not needed.  This creates additional entropy in each block. Because an attacker can't guarantee the order transactions are evaluated in a block, they have less chance of creating a favorable sender address and being in a block that doesn't contribute additional entropy to Algorando.
+   - > Mitigation: The more developers using Algorando, the more transactions will be made to Algorand creating more entropy.  All developers **must** use the same instance of Algorand to ensure maximum entropy
 - **Risk**: Developers can transform a byte[] to an int64 without using the full space of the random value, compromising the randomness
    - > Mitigation: **TODO: Example conversion from byte[] to an int within min/max range**
 
