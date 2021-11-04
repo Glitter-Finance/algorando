@@ -8,6 +8,7 @@ const FEE = 1e3;
 
 describe('Algorando', function () {
     const algorandoProgram = getProgram('algorando.py')
+    const testProgram = getProgram('getAlgorandoBytes.py')
     const clearProgram = getProgram('noop-clear.teal');
 
     let master;
@@ -23,21 +24,46 @@ describe('Algorando', function () {
             globalBytes: 1,
             globalInts: 1,
         }, {}, algorandoProgram, clearProgram);
+
+
     });
 
     it('Should update value randomly when called', () => {
-        const before = Array.from(runtime.getGlobalState(appId, 'Value'));
+        const testAppId = runtime.addApp({
+            sender: master.account,
+            globalBytes: 1,
+            globalInts: 1,
+        }, {}, testProgram, clearProgram);
 
-        runtime.executeTx({
-            type: types.TransactionType.CallApp,
-            sign: types.SignType.SecretKey,
-            fromAccountAddr: master.address,
-            appID: appId,
-            payFlags: {
-                totalFee: FEE,
-            },
-        });
-        const after = Array.from(runtime.getGlobalState(appId, 'Value'));
+        const nextRandomValue = () => {
+            runtime.executeTx([
+                {
+                    type: types.TransactionType.CallApp,
+                    sign: types.SignType.SecretKey,
+                    fromAccountAddr: master.address,
+                    appID: appId,
+                    payFlags: {
+                        totalFee: FEE,
+                    },
+                },
+                {
+                    type: types.TransactionType.CallApp,
+                    sign: types.SignType.SecretKey,
+                    fromAccountAddr: master.address,
+                    appID: testAppId,
+                    payFlags: {
+                        totalFee: FEE,
+                    },
+                }
+            ]);
+
+            return Array.from(runtime.getGlobalState(testAppId, 'value'));
+        }
+
+
+        const before = nextRandomValue();
+        const after = nextRandomValue();
+
         expect(before).to.not.deep.equal(after);
     });
 
