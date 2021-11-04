@@ -2,65 +2,24 @@ const { getProgram } = require('@algo-builder/algob');
 const { Runtime, AccountStore } = require('@algo-builder/runtime');
 const { types } = require('@algo-builder/web');
 const { assert, expect } = require('chai');
+const { nextRandomValueFactory } = require('./utils');
 
 const masterBalance = BigInt(10e6);
-const FEE = 1e3;
 
 describe('Algorando', function () {
-    const algorandoProgram = getProgram('algorando.py')
-    const testProgram = getProgram('getAlgorandoBytes.py')
-    const clearProgram = getProgram('noop-clear.teal');
-
     let master;
     let runtime;
     let appId;
+    let nextRandomValue;
 
-    this.beforeEach(async function () {
+    this.beforeEach(() => {
         master = new AccountStore(masterBalance);
         runtime = new Runtime([master]);
 
-        appId = runtime.addApp({
-            sender: master.account,
-            globalBytes: 1,
-            globalInts: 1,
-        }, {}, algorandoProgram, clearProgram);
-
-
+        [nextRandomValue, appId] = nextRandomValueFactory(runtime, master);
     });
 
     it('Should update value randomly when called', () => {
-        const testAppId = runtime.addApp({
-            sender: master.account,
-            globalBytes: 1,
-            globalInts: 1,
-        }, {}, testProgram, clearProgram);
-
-        const nextRandomValue = () => {
-            runtime.executeTx([
-                {
-                    type: types.TransactionType.CallApp,
-                    sign: types.SignType.SecretKey,
-                    fromAccountAddr: master.address,
-                    appID: appId,
-                    payFlags: {
-                        totalFee: FEE,
-                    },
-                },
-                {
-                    type: types.TransactionType.CallApp,
-                    sign: types.SignType.SecretKey,
-                    fromAccountAddr: master.address,
-                    appID: testAppId,
-                    payFlags: {
-                        totalFee: FEE,
-                    },
-                }
-            ]);
-
-            return Array.from(runtime.getGlobalState(testAppId, 'value'));
-        }
-
-
         const before = nextRandomValue();
         const after = nextRandomValue();
 
