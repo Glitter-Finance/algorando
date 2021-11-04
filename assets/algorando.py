@@ -8,7 +8,7 @@ from pyteal import (App, Bytes, Concat, Cond, Global, Int, Itob, Keccak256,
 def algorando():
 
     NONCE = Bytes("Nonce")
-    VALUE = Bytes("Value")
+    # VALUE = Bytes("Value")  # This global field was being used for easy testing, developers should not attempt to access it
 
     now = Itob(Global.latest_timestamp())
     sender = Txn.sender()
@@ -16,10 +16,11 @@ def algorando():
 
     onRandom = Seq([
         App.globalPut(NONCE, App.globalGet(NONCE) + Int(1)),
-        App.globalPut(VALUE, Keccak256(
+        value.store(Keccak256(
+            # App.globalPut(VALUE, Keccak256(
             Concat(Itob(App.globalGet(NONCE)), now, sender)
         )),
-        value.store(App.globalGet(VALUE)),
+        # value.store(App.globalGet(VALUE)),
         Return(Int(1))
     ])
 

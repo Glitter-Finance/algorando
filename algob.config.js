@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 // NOTE: below we provide some example accounts.
 // DON'T this account in any working environment because everyone can check it and use
 // the private keys (this accounts are visible to everyone).
@@ -78,26 +80,24 @@ let defaultCfg = {
 //   }
 // };
 
-// You can also use Environment variables to get Algod credentials
-// Please check https://github.com/scale-it/algo-builder/blob/master/docs/algob-config.md#credentials for more details and more methods.
-// Method 1
-process.env.ALGOD_ADDR = "127.0.0.1:4001";
-process.env.ALGOD_TOKEN = "algod_token";
-let algodCred = algodCredentialsFromEnv();
-
-
 let envCfg = {
-    host: algodCred.host,
-    port: algodCred.port,
-    token: algodCred.token,
-    accounts: accounts
+    host: 'https://testnet.algoexplorerapi.io',
+    port: 443,
+    token: 'why do i need this',
+    accounts: mkAccounts([
+        {
+            name: 'master',
+            addr: process.env.TEST_ADDR,
+            mnemonic: (process.env.TEST_MNEMONIC || '').split('.').join(' '),
+        }
+    ]),
 }
 
 
 module.exports = {
     networks: {
         default: defaultCfg,
-        prod: envCfg,
+        testnet: envCfg,
         // purestake: purestakeTestNetCfg
     }
 };
