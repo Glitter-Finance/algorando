@@ -24,12 +24,13 @@
 # Note: multiple calls to Algorando can be made in a single Atomic Transfer
 
 Assert(Gtxn[<n>].application_id() == <algorando_appId>)
-ImportScratchValue(<n>, 0) 
+randomBytes = ImportScratchValue(<n>, 0)
+
+# Create a random number (PyTeal >0.9)
+randomInt = Btoi(Extract(randomBytes, Int(0), Int(8)))
 ```
 
 ## Pitfalls
-- **Pitfall**: Developers can transform a byte[] to an int64 without using the full space of the random value, compromising the randomness
-   - > Mitigation: **TODO: Example conversion from byte[] to an int within min/max range**
 - **Pitfall**: Users could create an Atomic Transfer that contains a call to an impersonator app that is not random
    - > Mitigation: Developers **must** assert the application_id of the transaction to ensure the transaction group doesn't contain a call to a different, unexpected application that will impersonate Algorando
 
