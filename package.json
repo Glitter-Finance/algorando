@@ -21,6 +21,7 @@
     "dependencies": {
         "@algo-builder/algob": "^2.1.0",
         "chai": "^4.3.4",
-        "dotenv": "^10.0.0"
+        "dotenv": "^10.0.0",
+        "randomness": "^1.5.5"
     }
 }

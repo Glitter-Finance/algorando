@@ -1,12 +1,13 @@
 # Do not deploy, just used for tests against Algorando
 
-from pyteal import (App, Approve, Bytes, ImportScratchValue, Mode, Seq,
+from pyteal import (App, Approve, Bytes, Global, ImportScratchValue, Mode, Seq,
                     compileTeal)
 
 
 def getAlgorandoBytes():
     return Seq([
         App.globalPut(Bytes('value'), ImportScratchValue(0, 0)),
+        App.globalPut(Bytes('now'), Global.latest_timestamp()),
         Approve(),
     ])
 

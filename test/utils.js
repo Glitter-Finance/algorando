@@ -43,7 +43,7 @@ function nextRandomValueFactory(runtime, master) {
         ]);
 
         return Array.from(runtime.getGlobalState(testAppId, 'value'));
-    }, appId]
+    }, appId, testAppId]
 }
 
 module.exports = {
