@@ -6,7 +6,7 @@ const { expect } = require('chai');
 const masterBalance = BigInt(10e6);
 const ONE_KILO = 1024;
 
-const SAMPLE_SIZE = ONE_KILO * 16;
+const SAMPLE_SIZE = ONE_KILO * 8;
 const TEST_TIMEOUT = 1e3 * 60 * 2;
 
 describe('Entropy of Algorando', function () {
@@ -50,13 +50,7 @@ describe('Entropy of Algorando', function () {
         expect(result).equal(true);
     }).timeout(TEST_TIMEOUT).retries(3);
 
-
-    /* This test fails for the current sample-size, 8KB
-     * !!!! DEVS - This is the worst case-scenario with the least external entropy, devs should take this into
-     * consideration and prevent a single actor (address) from creating so many random values in a 
-     * single block.
-    */
-    it.skip('should retain randomness for calls from same sender, across same block', () => {
+    it('should retain randomness for calls from same sender, across same block', () => {
         runtime.setRoundAndTimestamp(1, Date.now());
         const bits = accounts
             .flatMap(() => {

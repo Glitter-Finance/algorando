@@ -2,7 +2,7 @@
 
 from pyteal import (App, Bytes, Concat, Cond, Global, Int, Itob, Keccak256,
                     Mode, OnComplete, Or, Reject, Return, ScratchVar, Seq,
-                    TealType, Txn, compileTeal)
+                    TealType, Txn, compileTeal, Sha256, Sha512_256)
 
 
 def algorando():
@@ -15,7 +15,7 @@ def algorando():
 
     onRandom = Seq([
         App.globalPut(NONCE, App.globalGet(NONCE) + Int(1)),
-        value.store(Keccak256(
+        value.store(Sha512_256(
             Concat(Itob(App.globalGet(NONCE)), now, sender)
         )),
         Return(Int(1))
